@@ -26,6 +26,21 @@ defmodule Day5 do
     calc_id({row, column})
   end
 
+  def task2_v2 do
+    ids = Enum.map(@data, &binary_calc/1)
+
+    Enum.min(ids)..Enum.max(ids)
+    |> Enum.to_list()
+    |> Kernel.--(ids)
+  end
+
+  defp binary_calc(str) do
+    str
+    |> String.replace(["F", "L"], "0")
+    |> String.replace(["B", "R"], "1")
+    |> String.to_integer(2)
+  end
+
   defp transcribe_seat(cmd_str) do
     cmd_str
     |> spliter
