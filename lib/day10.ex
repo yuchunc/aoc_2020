@@ -13,12 +13,9 @@ defmodule Day10 do
   end
 
   def task2(data \\ @data) do
-    device_jolt = List.last(data) + 3
-    list = [0 | data] ++ [device_jolt]
-    graph = translate_to_graph(list, Graph.new)
-
-    Graph.get_paths(graph, 0, device_jolt)
-    |> Enum.count
+    [0 | data]
+    |> Enum.chunk_while([], &chuncker/2, &after_fn/1)
+    |> Enum.reduce(1, &count_paths/2)
   end
 
   defp find_differences(elem, {last, {one, three}}) do
@@ -28,19 +25,37 @@ defmodule Day10 do
     end
   end
 
+  defp chuncker(elem, []), do: {:cont, [elem]}
+
+  defp chuncker(elem, [h | _] = acc) when h + 1 == elem, do: {:cont, [elem | acc]}
+
+  defp chuncker(elem, acc), do: {:cont, Enum.reverse(acc), [elem]}
+
+  defp after_fn(acc), do: {:cont, acc, []}
+
+  defp count_paths(list, acc) when length(list) in [1, 2], do: acc
+
+  defp count_paths(list, acc) do
+    count =
+      translate_to_graph(list)
+      |> Graph.get_paths(hd(list), List.last(list))
+      |> Enum.count()
+
+    count * acc
+  end
+
+  defp translate_to_graph(list, graph \\ Graph.new())
+
   defp translate_to_graph([_], graph), do: graph
 
   defp translate_to_graph(list, graph) do
     {[current | adapters], rest} = Enum.split(list, 4)
 
-    graph_1 = Enum.reduce(adapters, graph, &add_to_graph(&1, current, &2))
+    a_tuples =
+      for a <- adapters do
+        {current, a}
+      end
 
-    translate_to_graph(adapters ++ rest, graph_1)
+    translate_to_graph(adapters ++ rest, Graph.add_edges(graph, a_tuples))
   end
-
-  defp add_to_graph(adapter, current, graph) when adapter - current <= 3 do
-      Graph.add_edge(graph, current, adapter)
-  end
-
-  defp add_to_graph(_, _, graph), do: graph
 end
