@@ -17,7 +17,6 @@ defmodule Day7Test do
     data =
       @data
       |> String.split("\n", trim: true)
-      |> IO.inspect(label: "label")
 
     assert Day7.task2(data) == 32
   end
