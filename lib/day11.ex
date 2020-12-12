@@ -146,4 +146,3 @@ defmodule Day11.Task2 do
     get_in(seats, [Access.at(row), Access.at(col)])
   end
 end
-
